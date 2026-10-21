@@ -1,0 +1,54 @@
+name: AI Stock Report — Weekly Update
+
+on:
+  schedule:
+    # Runs every Monday at 7:00 AM UTC (8:00 AM Dublin time)
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+    # This button lets you run it manually any time from GitHub
+
+jobs:
+  build-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install anthropic python-dotenv yfinance pandas
+
+      - name: Create .env file from secret
+        run: |
+          echo "ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}" > .env
+
+      - name: Run Agent 1 — Data Fetcher
+        run: python agent1_data_fetcher.py
+
+      - name: Run Agent 2 — Financial Analyst
+        run: python agent2_financial_analyst.py
+
+      - name: Run Agent 3 — Insight Generator
+        run: python agent3_insight_generator.py
+
+      - name: Run Agent 4 — Report Builder
+        run: python agent4_report_builder.py
+
+      - name: Move report to docs folder
+        run: |
+          mkdir -p docs
+          cp ai_stock_report.html docs/index.html
+
+      - name: Commit and push updated report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/index.html
+          git diff --staged --quiet || git commit -m "Auto-update: AI stock report $(date +'%Y-%m-%d')"
+          git push
