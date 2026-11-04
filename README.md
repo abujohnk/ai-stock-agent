@@ -1,4 +1,4 @@
-# AI Stock Intelligence Agent System
+# AI Sector Stock Analyser Agent
 ### A 4-Agent AI Pipeline for Indian & Global AI Stock Analysis
 
 **Author:** Abu John  
